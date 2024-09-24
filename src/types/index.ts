@@ -1,90 +1,87 @@
 // Основные типы данных
 
-// Типы методов оплаты 
-export type PaymentsMethods = 'нал' | 'безнал';
+// Типы методов оплаты
+export type PaymentsMethods = 'нал' | 'безнал'; // Определяет доступные методы оплаты: наличные и безналичные
 
 // Типы категорий
-export type CategoryType = 'софт-скил' | 'хард-скил' | 'кнопка' | 'другое' | 'дополнительное';
+export type CategoryType =
+	| 'софт-скил'
+	| 'хард-скил'
+	| 'кнопка'
+	| 'другое'
+	| 'дополнительное'; // Перечисляет возможные категории товаров
 
 // Интерфейс продукта
 export interface IProduct {
-  id: number; // Уникальный идентификатор товара
-  name: string; // Название товара
-  description: string; // Описание товара
-  price: number | null; // Цена товара
-  category: string; // Категория товара
-  imageUrl: string; // URL изображения товара
-}
-
-// Интерфейс корзины
-export interface BasketItem {
-  productId: number; // Идентификатор товара
-  quantity: number; // Количество товара в корзине
-}
-
-
-// Интерфейс контактов заказа
-export interface IOrderContacts {
-  email: string; // Email пользователя
-  phone: string; // Номер телефона пользователя
-}
-
-// Интерфейс формы доставки заказа
-export interface IOrderDeliveryForm {
-  payment: PaymentsMethods; //Метод оплаты
-  address: string; //Адрес доставки
+	id: number; // Уникальный идентификатор товара
+	name: string; // Название товара
+	description: string; // Описание товара
+	price: number | null; // Цена товара; может быть null, если цена не указана
+	category: string; // Категория товара
+	image: string; // URL изображения товара
 }
 
 // Интерфейс состояния приложения
 export interface IAppState {
-  catalog: IProduct[]; // Список товаров
-  order: IOrder | null; // Текущий заказ
-  basket: IProduct[] | null; // Содержимое корзины
-  preview: string | null; // Превью товара
-  loading: boolean; // Индикатор загрузки данных
+	catalog: IProduct[]; // Список всех товаров в каталоге
+	order: IOrder | null; // Текущий заказ; может быть null, если заказа нет
+	basket: IProduct[] | null; // Содержимое корзины; может быть null, если корзина пуста
+	preview: string | null; // ID продукта для предварительного просмотра; может быть null, если ничего не выбрано
+	loading: boolean; // Индикатор загрузки данных; true, если данные загружаются
 }
 
-// Интерфейс страницы
+// Интерфейс для формы заказа
+export interface IOrderForm {
+	payment: string; // Метод оплаты
+	address: string; // Адрес доставки
+}
+
+// Интерфейс для формы контактов
+export interface IContactForm {
+	phone: string; // Номер телефона
+	email: string; // Адрес электронной почты
+}
+
+// Интерфейс заказа, объединяющий формы заказа и контактов
+export interface IOrder extends IOrderForm, IContactForm {
+	total: number; // Общая сумма заказа
+	items: string[]; // Список ID товаров в заказе
+}
+
+// Тип для ошибок формы
+export type FormErrors = Partial<Record<keyof IOrder, string>>; // Ошибки, связанные с полями формы заказа; может содержать строки для каждого поля
+
+// Интерфейс результата заказа
+export interface IOrderResult {
+	id: string; // Уникальный идентификатор заказа
+	total: number; // Общая сумма заказа
+}
+
+// Интерфейс карточек продуктов, расширяющий интерфейс продукта
+export interface ICards extends IProduct {
+	index?: string; // Индекс карточки в представлении; опциональный
+	buttonTitle?: string; // Название кнопки для действий с карточкой; опциональный
+}
+
+// Интерфейс для представления корзины
+export interface IBasketView {
+	items: HTMLElement[]; // Список элементов HTML, представляющих товары в корзине
+	total: number; // Общая сумма товаров в корзине
+}
+
+// Интерфейс страницы, содержащий элементы интерфейса
 export interface IPage {
-  counter: number; // Счетчик товаров
-  store: HTMLElement[]; // Элементы страницы
-  locked: boolean; // Блок элементов страницы
+	counter: number; // Счетчик товаров в корзине
+	gallery: HTMLElement[]; // Список элементов HTML для галереи товаров
 }
 
-// Интерфейс карточки товара
-export interface ICard {
-  id: string; // Идентификатор карточки
-  title: string; // Заголовок
-  category: string; // Категория
-  description: string; // Описание
-  image: string; // Изображение
-  price: number | null; // Цена
-  selected: boolean; // Выбран товар или нет
-  button: string; // Кнопка действия
+// Интерфейс для описания действий
+export interface IActions {
+	onClick: (event: MouseEvent) => void; // Обработчик события клика
 }
 
-
-// Интерфейс ошибок формы заказа, объединяющий контакты и доставку
-export interface IOrderFormError extends IOrderContacts, IOrderDeliveryForm {}
-
-// Интерфейс заказа, включающий элементы заказа и общую сумму
-export interface IOrder extends IOrderFormError {
-  items: string[]; // Товары в заказе
-  total: number; // Общая сумма заказа
+// Интерфейс результата заказа (повторно объявлен, возможно, стоит удалить дублирование)
+export interface IOrderResult {
+	id: string; // Уникальный идентификатор заказа
+	total: number; // Общая сумма заказа
 }
-
-// Интерфейс успешного заказа
-export interface IOrderSuccess {
-  id: string; //Идентификатор заказа
-  total: number; // Общая сумма заказа
-}
-
-// Интерфейс для API Ларек
-export interface ILarekAPI {
-  getProductList: () => Promise<IProduct[]>; // Получает список товаров
-  getProduct: (id: string) => Promise<IProduct>; // Получает данные товара по идентификатору
-  orderProduct: (order: IOrder) => Promise<IOrderSuccess>; // Отправляет заказ и получает результат
-}
-
-// Тип ошибок формы
-export type FormError = Partial<Record<keyof IOrder, string>>;
