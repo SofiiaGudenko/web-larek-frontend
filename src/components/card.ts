@@ -1,98 +1,39 @@
-import { IActions, ICards } from "../types";
-import { cardCategory } from "../utils/constants";
-import { ensureElement } from "../utils/utils";
-import { Component } from "./base/component";
+import { IProduct } from '../types/index';
+import { cloneTemplate } from '../utils/utils';
+import { CDN_URL } from '../utils/constants';
+import { Modal } from './common/Modal';
 
-export default class Card extends Component<ICards> {
-    protected _title: HTMLElement;
-    protected _price: HTMLElement;
-    protected _image?: HTMLImageElement;
-    protected _text?: HTMLElement;
-    protected _button?: HTMLButtonElement;
-    protected _index?: HTMLElement;
-    protected _category?: HTMLElement;
+export class Card {
+	private product: IProduct;
+	private modal: Modal;
 
-    constructor(container: HTMLElement, actions?: IActions) {
-        super(container);
+	constructor(product: IProduct, modal: Modal) {
+		this.product = product;
+		this.modal = modal;
+	}
 
-        this._title = ensureElement<HTMLElement>('.card__title', container);
-        this._price = ensureElement<HTMLElement>('.card__price', container);
-        this._image = container.querySelector('.card__image');
-        this._text = container.querySelector('.card__text');
-        this._button = container.querySelector('.card__button');
-        this._index = container.querySelector('.basket__item-index');
-        this._category = container.querySelector('.card__category')
+	public render(): HTMLElement {
+		const template = cloneTemplate<HTMLButtonElement>('#card-catalog');
 
-        if (actions?.onClick && this._button) {
-            this._button.addEventListener('click', actions.onClick);
-        } else if (actions?.onClick) {
-            container.addEventListener('click', actions.onClick);
-        }
-    }
+		const titleElement = template.querySelector('.card__title') as HTMLElement;
+		const categoryElement = template.querySelector(
+			'.card__category'
+		) as HTMLElement;
+		const imageElement = template.querySelector(
+			'.card__image'
+		) as HTMLImageElement;
+		const priceElement = template.querySelector('.card__price') as HTMLElement;
 
-    disableButton(value: number | null) {
-        if (value === null && this._button) {
-            this._button.disabled = true;
-        }
-    }
-       
-    set id(value: string) {
-        this.container.dataset.id = value;
-    }
+		if (titleElement) titleElement.textContent = this.product.title;
+		if (categoryElement) categoryElement.textContent = this.product.category;
+		if (imageElement) imageElement.src = `${CDN_URL}/${this.product.image}`;
+		if (priceElement)
+			priceElement.textContent = `${this.product.price} синапсов`;
 
-    get id(): string {
-        return this.container.dataset.id || '';
-    }
+		template.addEventListener('click', () => {
+			this.modal.open(this.product);
+		});
 
-    set buttonText(value: string) {
-        if (this._button) {
-            this.setText(this._button, value);
-        }
-    }
-
-    get buttonText(): string {
-        return this._button.textContent || '';
-    }
-
-    set title(value: string) {
-        this.setText(this._title, value);
-    }
-
-    get title(): string {
-        return this._title.textContent || '';
-    }
-
-    set price(value: number | null) {
-        this.setText(this._price, (value) ? `${value.toString()} синапсов` : '');
-        this.disableButton(value);
-    }
-
-    get price(): number | null {
-        return Number(this._price.textContent || '');
-    }
-
-    set index(value: string) {
-        this.setText(this._index, value);
-    }
-
-    get index(): string {
-        return this._index.textContent || '';
-    }
-
-    set category(value: string) {
-        this.setText(this._category, value);
-        this._category.classList.add(cardCategory[value])
-    }
-
-    get category(): string {
-        return this._category.textContent || '';
-    }
-
-    set image(value: string) {
-        this.setImage(this._image, value, this.title);
-    }
-
-    set text(value: string) {
-        this.setText(this._text, value);
-    }
+		return template;
+	}
 }

@@ -1,10 +1,9 @@
 export const API_URL = `${process.env.API_ORIGIN}/api/weblarek`;
 export const CDN_URL = `${process.env.API_ORIGIN}/content/weblarek`;
 
-export const PaymentTypes: { [key: string]: string } = {
-    "card": "online",
-    "cash": "cash"
-  }
+export const settings = {
+
+};
 
 export const cardCategory: { [key: string]: string } = {
   "софт-скил": "card__category_soft",
@@ -12,4 +11,4 @@ export const cardCategory: { [key: string]: string } = {
   "кнопка": "card__category_button",
   "другое": "card__category_other",
   "дополнительное": "card__category_additional",
-}
+};

@@ -1,23 +1,22 @@
-import {IEvents} from "./events";
+import { Api, ApiListResponse } from './api';
+import { IProduct } from '../../types/index';
 
-// Гарда для проверки на модель
-export const isModel = (obj: unknown): obj is Model<any> => {
-    return obj instanceof Model;
-}
+export class Model {
+	private api: Api;
 
-/**
- * Базовая модель, чтобы можно было отличить ее от простых объектов с данными
- */
-export abstract class Model<T> {
-    constructor(data: Partial<T>, protected events: IEvents) {
-        Object.assign(this, data);
-    }
+	constructor(api: Api) {
+		this.api = api;
+	}
 
-    // Сообщить всем что модель поменялась
-    emitChanges(event: string, payload?: object) {
-        // Состав данных можно модифицировать
-        this.events.emit(event, payload ?? {});
-    }
-
-    // далее можно добавить общие методы для моделей
+	async getProducts(): Promise<IProduct[]> {
+		try {
+			const response = (await this.api.get(
+				'/product/'
+			)) as ApiListResponse<IProduct>;
+			return response.items;
+		} catch (error) {
+			console.error('Ошибка', error);
+			return [];
+		}
+	}
 }
